@@ -5,14 +5,9 @@ author        = "Sergey K"
 description   = "A new awesome nimble package"
 license       = "MIT"
 srcDir        = "src"
-bin           = @["d2"]
+bin           = @["d3"]
 
 
 # Dependencies
 
 requires "nim >= 1.4.2"
-
-# Flags
-
-switch("verbose")
-switch("opt", "speed")
