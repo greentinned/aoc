@@ -5,6 +5,7 @@ author        = "Sergey K"
 description   = "A new awesome nimble package"
 license       = "MIT"
 srcDir        = "src"
+binDir        = "build"
 bin           = @["d3"]
 
 
