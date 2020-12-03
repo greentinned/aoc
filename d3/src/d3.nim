@@ -4,6 +4,7 @@ import strutils
 
 proc getInput(file: bool): seq[string] =
   if file: return readFile("input.txt").strip.splitLines
+
   result = 
     """
 ..##.........##.........##.........##.........##.........##.......
@@ -21,38 +22,23 @@ proc getInput(file: bool): seq[string] =
 
 
 when isMainModule:
-  var pos = 0
-  var li = 0
-  var trees = 0
-  var treesMul = 1
+  var result = 1
 
-  const rules = @[(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
-  
-  for rule in rules:
-    li = 0
-    pos = 0
-    trees = 0
+  const slopes = @[(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
 
-    echo "\nrule: ", rule
+  for slope in slopes:
+    var li, pos, trees: int
 
     for line in getInput(true):
-      var lineDesc = line
-
       if pos mod line.high != 0:
         pos = pos mod line.len
 
-      if li mod rule[1] == 0:
-        lineDesc[pos] = 'O'
+      if li mod slope[1] == 0:
+        if line[pos] == '#': inc(trees)
+        pos += slope[0]
 
-        if line[pos] == '#':
-          lineDesc[pos] = 'X'
-          inc(trees)
+      inc(li)
 
-        pos += rule[0]
+    result *= trees
 
-      echo "li: ", li, "\t line: ", lineDesc, "\ttrees: ", trees
-      inc li
-
-    treesMul *= trees
-
-  echo "\ntrees multiplied: ", treesMul
+  echo result
