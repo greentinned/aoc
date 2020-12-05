@@ -85,10 +85,10 @@ const validKeys = ["ecl", "pid", "eyr", "hcl", "byr", "iyr", "hgt"]
 
 proc validate(data: seq[string]): bool =
   # this checksum increments for every valid key
-  # final value must be equal to len of validKeys
+  # final value must be equal to len of the validKeys
   var validatedKeysChecksum: uint
   # this seq contains results of validation of each value
-  # the idea is to fold this later to get final result of values validation
+  # the idea is to fold this later to get final result of all the validated values
   var validatedValuesResults: seq[bool]
 
   for field in data:
