@@ -67,9 +67,7 @@ fn run(alloc: *Allocator, program: []const Instr) !Result {
 
     var acc: i32 = 0;
     var cursor: u32 = 0;
-    // var instr_buf_len: u32 = 0;
     var instr_buf = std.ArrayList(Instr).init(alloc);
-    // while (cursor < program.len) : (instr_buf_len += 1) {
     while (cursor < program.len) {
         const instr = program[cursor];
 
@@ -94,11 +92,7 @@ fn run(alloc: *Allocator, program: []const Instr) !Result {
             }
             cursor += 1;
         } else unreachable;
-
-        printInstr(&instr, cursor, acc);
     }
-
-    // unreachable;
 
     return Result{ .ret = 0, .acc = acc };
 }
@@ -160,11 +154,11 @@ test "solve part 2" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
 
+    var result: Result = undefined;
     const program = try parse(&arena.allocator, input);
     // var program = try parse(&arena.allocator, test_input);
 
     const options = [_][]const u8{ "nop", "jmp" };
-
     outer: for (options) |operator| {
         for (program) |instr, idx| {
             // MONKEY PATHCHING
@@ -176,20 +170,18 @@ test "solve part 2" {
                     new_op = "jmp";
                 }
                 const prev_op = instr;
-                // Can not assign to constant
                 program[idx] = makeInstr(instr.ln, new_op, instr.val, instr.sign);
-                const result = try run(&arena.allocator, program);
+                result = try run(&arena.allocator, program);
                 if (result.ret == 0) {
-                    print("NORMAL RETURN WITH: {}:{}, ACC: {}", .{ idx, new_op, result.acc });
+                    print("NORMAL RETURN WITH: {}:{}, ACC: {}\n", .{ idx, new_op, result.acc });
                     break :outer;
                 } else {
-                    print("LOOP RETURN WITH: {}:{}, ACC: {}", .{ idx, new_op, result.acc });
+                    print("LOOP RETURN WITH: {}:{}, ACC: {}\n", .{ idx, new_op, result.acc });
                     program[idx] = prev_op;
                 }
             }
         }
     }
 
-    // const result = try run(&arena.allocator, program);
-    // testing.expectEqual(@as(i32, 1487), result);
+    testing.expectEqual(@as(i32, 1607), result.acc);
 }
