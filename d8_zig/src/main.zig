@@ -63,8 +63,6 @@ fn parse(alloc: *Allocator, program: []const u8) ![]Instr {
 }
 
 fn run(alloc: *Allocator, program: []const Instr) !Result {
-    print("\n", .{});
-
     var acc: i32 = 0;
     var cursor: u32 = 0;
     var instr_buf = std.ArrayList(Instr).init(alloc);
@@ -111,9 +109,16 @@ const test_input =
     \\acc +6
 ;
 
+const test_input2 =
+    \\jmp +1
+    \\jmp +0
+;
+
 const input = @embedFile("../input.txt");
 
 test "parse instr" {
+    print("\n", .{});
+
     const parsed_instr = try parseInstr("acc -99", 0);
     testing.expect(parsed_instr.ln == 0);
     testing.expectEqualStrings(parsed_instr.op, "acc");
@@ -121,6 +126,8 @@ test "parse instr" {
 }
 
 test "contains instr" {
+    print("\n", .{});
+
     const parsed_instr = try parseInstr("nop +0", 0);
     const parsed_instr2 = try parseInstr("acc -99", 5);
     const parsed_instr3 = try parseInstr("acc -99", 8);
@@ -132,6 +139,8 @@ test "contains instr" {
 }
 
 test "parse program" {
+    print("\n", .{});
+
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
 
@@ -141,16 +150,22 @@ test "parse program" {
 }
 
 test "solve part 1" {
+    print("\n", .{});
+
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
 
     const program = try parse(&arena.allocator, input);
     // const program = try parse(&arena.allocator, test_input);
+    // const program = try parse(&arena.allocator, test_input2);
     const result = try run(&arena.allocator, program);
+    // testing.expectEqual(@as(i32, 0), result.acc);
     testing.expectEqual(@as(i32, 1487), result.acc);
 }
 
 test "solve part 2" {
+    print("\n", .{});
+
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
 
@@ -173,10 +188,10 @@ test "solve part 2" {
                 program[idx] = makeInstr(instr.ln, new_op, instr.val, instr.sign);
                 result = try run(&arena.allocator, program);
                 if (result.ret == 0) {
-                    print("NORMAL RETURN WITH: {}:{}, ACC: {}\n", .{ idx, new_op, result.acc });
+                    // print("NORMAL RETURN WITH: {}:{}, ACC: {}\n", .{ idx, new_op, result.acc });
                     break :outer;
                 } else {
-                    print("LOOP RETURN WITH: {}:{}, ACC: {}\n", .{ idx, new_op, result.acc });
+                    // print("LOOP RETURN WITH: {}:{}, ACC: {}\n", .{ idx, new_op, result.acc });
                     program[idx] = prev_op;
                 }
             }
