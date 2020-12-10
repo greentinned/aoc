@@ -9,10 +9,15 @@ const Instr = struct {
     ln: usize,
     op: []const u8,
     val: u32,
-    sign: u8,
+    sign: Sign,
 };
 
-fn makeInstr(line: usize, opcode: []const u8, value: u32, sign: u8) Instr {
+const Sign = enum(u8) {
+    plus = '+',
+    minus = '-',
+};
+
+fn makeInstr(line: usize, opcode: []const u8, value: u32, sign: Sign) Instr {
     return Instr{
         .ln = line,
         .op = opcode,
@@ -29,12 +34,16 @@ fn parseInstr(instr: []const u8, line: usize) !Instr {
     const op = instr[0..3];
     const sign = instr[4..5][0];
     const val = try std.fmt.parseInt(u32, instr[5..], 10);
-    return Instr{ .ln = line, .op = op, .val = val, .sign = sign };
+    return Instr{
+        .ln = line,
+        .op = op,
+        .val = val,
+        .sign = if (sign == '+') Sign.plus else Sign.minus,
+    };
 }
 
 fn containsInstr(instr: *const Instr, buf: []const Instr) bool {
     for (buf) |item, idx| {
-        // print("containsInstr: {} == {}, {} == {}\n", .{ item.ln, instr.ln, item.op, instr.op });
         if (item.ln == instr.ln and std.mem.eql(u8, item.op, instr.op)) return true;
     }
     return false;
@@ -77,16 +86,14 @@ fn run(alloc: *Allocator, program: []const Instr) !Result {
         if (std.mem.eql(u8, instr.op, "nop")) {
             cursor += 1;
         } else if (std.mem.eql(u8, instr.op, "jmp")) {
-            if (instr.sign == '-') {
-                cursor -= instr.val;
-            } else {
-                cursor += instr.val;
+            switch (instr.sign) {
+                .plus => cursor += instr.val,
+                .minus => cursor -= instr.val,
             }
         } else if (std.mem.eql(u8, instr.op, "acc")) {
-            if (instr.sign == '-') {
-                acc -= @intCast(i32, instr.val);
-            } else {
-                acc += @intCast(i32, instr.val);
+            switch (instr.sign) {
+                .plus => acc += @intCast(i32, instr.val),
+                .minus => acc -= @intCast(i32, instr.val),
             }
             cursor += 1;
         } else unreachable;
@@ -114,6 +121,15 @@ const test_input2 =
     \\jmp +0
 ;
 
+const test_input3 =
+    \\jmp +4
+    \\nop +0
+    \\acc +2
+    \\nop +0
+    \\acc +1
+    \\jmp -1
+;
+
 const input = @embedFile("../input.txt");
 
 test "parse instr" {
@@ -122,7 +138,7 @@ test "parse instr" {
     const parsed_instr = try parseInstr("acc -99", 0);
     testing.expect(parsed_instr.ln == 0);
     testing.expectEqualStrings(parsed_instr.op, "acc");
-    testing.expect(parsed_instr.val == 99 and parsed_instr.sign == '-');
+    testing.expect(parsed_instr.val == 99 and parsed_instr.sign == .minus);
 }
 
 test "contains instr" {
@@ -155,12 +171,13 @@ test "solve part 1" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
 
-    const program = try parse(&arena.allocator, input);
+    // const program = try parse(&arena.allocator, input);
     // const program = try parse(&arena.allocator, test_input);
     // const program = try parse(&arena.allocator, test_input2);
+    const program = try parse(&arena.allocator, test_input3);
     const result = try run(&arena.allocator, program);
-    // testing.expectEqual(@as(i32, 0), result.acc);
-    testing.expectEqual(@as(i32, 1487), result.acc);
+    testing.expectEqual(@as(i32, 1), result.acc);
+    // testing.expectEqual(@as(i32, 1487), result.acc);
 }
 
 test "solve part 2" {
