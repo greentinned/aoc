@@ -5,7 +5,7 @@ const Allocator = std.mem.Allocator;
 
 // ******** Main ********
 
-fn parseInput(alloc: *Allocator, raw: []const u8) ![]i64 {
+fn parseInput(alloc: *Allocator, raw: []const u8) ![]const i64 {
     var result = std.ArrayList(i64).init(alloc);
     var iter = std.mem.tokenize(raw, "\n");
     while (iter.next()) |item| {
@@ -70,11 +70,8 @@ fn findFirstLastIdx(num: i64, list: []const i64) Result {
 fn findMinMaxSum(list: []const i64) i64 {
     var min: i64 = list[0];
     var max: i64 = list[0];
-    var idx: usize = 0;
 
-    while (idx < list.len) : (idx += 1) {
-        const num = list[idx];
-
+    for (list) |num| {
         if (max < num) max = num;
         if (min > num) min = num;
     }
@@ -110,6 +107,8 @@ const test_input =
 const input = @embedFile("../input.txt");
 
 test "parse input" {
+    print("\n", .{});
+
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
 
@@ -119,6 +118,8 @@ test "parse input" {
 }
 
 test "is sum" {
+    print("\n", .{});
+
     const numbers = [_]i64{ 35, 20, 15, 25, 47 };
     testing.expect(isSum(40, &numbers));
     testing.expectEqual(isSum(70, &numbers), false);
@@ -126,6 +127,7 @@ test "is sum" {
 
 test "test input" {
     print("\n", .{});
+
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
 
@@ -140,6 +142,8 @@ test "test input" {
 }
 
 test "solve part 1" {
+    print("\n", .{});
+
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
 
@@ -149,6 +153,8 @@ test "solve part 1" {
 }
 
 test "solve part 2" {
+    print("\n", .{});
+
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
 
