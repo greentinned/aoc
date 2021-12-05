@@ -210,66 +210,106 @@ mod d3 {
 }
 
 /*
- * Day 3
- * https://adventofcode.com/2015/day/3
+ * Day 4
+ * https://adventofcode.com/2015/day/4
  */
 
 #[cfg(test)]
 mod d4 {
     use md5::{Digest, Md5};
 
-    fn validate_hash(input: &str) -> bool {
-        &input[..5] == "00000"
+    fn validate_hash(input: &str, zeroes: usize) -> bool {
+        &input[..zeroes] == "0".repeat(zeroes)
     }
 
-    fn mine_hash(input: &str) -> u64 {
-        let mut input_string = input.to_string();
+    fn mine_hash(input: &str, zeroes: usize) -> Result<u64, ()> {
+        for i in 1.. {
+            let hash = Md5::digest((input.to_owned() + &i.to_string()).as_bytes());
 
-        for i in 1..1_000_000 {
-            input_string.push_str(&i.to_string());
-
-            let mut hasher = Md5::new();
-            hasher.update(input);
-            let hash = hasher.finalize();
-            let hash_string = String::from_utf8_lossy(&hash[..]); //.expect("Not a UTF-8 string");
-
-            if validate_hash(&hash_string) {
-                return i;
+            if validate_hash(&format!("{:x}", hash), zeroes) {
+                return Ok(i);
             }
         }
-        0
+        Err(())
     }
 
     #[test]
     fn it_can_validate_hash() {
-        assert_eq!(validate_hash("000001dbbfa"), true);
-        assert_eq!(validate_hash("001001dbbfa"), false);
+        assert_eq!(validate_hash("000001dbbfa", 5), true);
+        assert_eq!(validate_hash("001001dbbfa", 5), false);
     }
 
     #[test]
     fn it_can_mine_hash() {
-        // assert_eq!(mine_hash("abcdef"), 609043)
-        let mut input = String::from("abcdef");
-        input.push_str(&(1).to_string());
-
-        let mut hasher = Md5::new();
-        hasher.update(&input);
-        let hash = hasher.finalize();
-        let hash_string = String::from_utf8_lossy(&hash[..]); //.expect("Not a UTF-8 string");
-        assert_eq!(hash_string, "");
+        assert_eq!(mine_hash("abcdef", 5).unwrap(), 609043)
     }
 
     #[test]
     fn slove_problem_one() {
         let input = "bgvyzdsv";
-        let result = 1;
-        assert_eq!(result, 0);
+        assert_eq!(mine_hash(input, 5).unwrap(), 254575);
     }
 
     #[test]
     fn slove_problem_two() {
         let input = "bgvyzdsv";
-        let result = 1;
-        assert_eq!(result, 0);
+        assert_eq!(mine_hash(input, 6).unwrap(), 1038736);
+    }
+}
+
+/*
+ * Day 5
+ * https://adventofcode.com/2015/day/5
+ */
+
+#[cfg(test)]
+mod d5 {
+    fn check_vowels(input: &str, template: &str) -> bool {
+        input
+            .chars()
+            .map(|el| template.contains(el))
+            .filter(|el| *el == true)
+            .collect::<Vec<_>>()
+            .len()
+            >= 3
+    }
+
+    fn check_doubles(input: &str, template: &str) -> bool {
+        false
+    }
+
+    fn check_stops(input: &str, template: &str) -> bool {
+        template
+            .split('|')
+            .map(|el| input.contains(el))
+            .filter(|el| *el == true)
+            .collect::<Vec<_>>()
+            .len()
+            == 0
+    }
+
+    #[test]
+    fn it_can_check_vowels() {
+        assert_eq!(check_vowels("xazegovaui", "aeiou"), true);
+        assert_eq!(check_vowels("xazegov", "aeiou"), true);
+        assert_eq!(check_vowels("dvszwmarrgswjxmb", "aeiou"), false);
+    }
+
+    #[test]
+    fn it_can_check_stops() {
+        assert_eq!(check_stops("ugknbfddgicrmopn", "ab|cd|pq|xy"), true);
+        assert_eq!(check_stops("haegwjzuvuyypxyu", "ab|cd|pq|xy"), false);
+    }
+
+    #[test]
+    fn slove_problem_one() {
+        let input = true;
+        assert_eq!(input, false);
+    }
+
+    #[test]
+    fn slove_problem_two() {
+        let input = true;
+        assert_eq!(input, false);
     }
 }
