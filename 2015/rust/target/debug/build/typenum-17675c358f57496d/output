@@ -1,2 +1,0 @@
-cargo:rustc-env=TYPENUM_BUILD_CONSTS=/Users/skorotkov/dev/aoc/2015/rust/target/debug/build/typenum-17675c358f57496d/out/consts.rs
-cargo:rustc-env=TYPENUM_BUILD_OP=/Users/skorotkov/dev/aoc/2015/rust/target/debug/build/typenum-17675c358f57496d/out/op.rs
